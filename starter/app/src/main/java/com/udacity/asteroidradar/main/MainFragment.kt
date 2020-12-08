@@ -2,12 +2,12 @@ package com.udacity.asteroidradar.main
 
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.udacity.asteroidradar.R
+import com.udacity.asteroidradar.api.AsteroidApiFilter
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
 
 class MainFragment : Fragment() {
@@ -42,6 +42,7 @@ class MainFragment : Fragment() {
                 viewModel.onDetailNavigated()
             }
         })
+        viewModel.getAsteroid(AsteroidApiFilter.SHOW_WEEK_ASTEROIDS)
 
         return binding.root
     }
@@ -52,6 +53,13 @@ class MainFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        viewModel.updateFilter(
+                when(item.itemId){
+                    R.id.show_week_menu -> AsteroidApiFilter.SHOW_WEEK_ASTEROIDS
+                    R.id.show_today_menu -> AsteroidApiFilter.SHOW_TODAY_ASTEROIDS
+                    else -> AsteroidApiFilter.SHOW_SAVED_ASTEROIDS
+                }
+        )
         return true
     }
 }

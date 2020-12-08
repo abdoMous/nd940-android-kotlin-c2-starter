@@ -3,13 +3,29 @@ package com.udacity.asteroidradar.main
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.Asteroid
+import com.udacity.asteroidradar.api.AsteroidApi
+import com.udacity.asteroidradar.api.AsteroidApiFilter
+import com.udacity.asteroidradar.api.getTodayFormattedDate
+import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+import retrofit2.await
+import java.lang.Exception
+
+enum class AsteroidApiStatus { LOADING, ERROR, DONE }
 
 class MainViewModel : ViewModel() {
 
     private val _navigateToDetail = MutableLiveData<Asteroid>()
     val navigateToDetail : LiveData<Asteroid>
         get() = _navigateToDetail
+
+
+    private val _status = MutableLiveData<AsteroidApiStatus>()
+    val status : LiveData<AsteroidApiStatus>
+        get() = _status
 
     fun onAsteroidClicked(asteroid: Asteroid) {
         _navigateToDetail.value = asteroid
@@ -23,15 +39,28 @@ class MainViewModel : ViewModel() {
     val asteroids: LiveData<List<Asteroid>>
         get() = _asteroids
 
-    init {
-        _asteroids.value = listOf(Asteroid(2465633, "465633 (2009 JR5)",
-            "2015-09-08", 20.3, 0.23,
-            8.12,0.30, true),
-            Asteroid(222222, "222 (2 JR5)",
-                "2002-02-02", 20.3, 0.23,
-                8.12,0.30, false),
-            Asteroid(33333, "3333 (33 JR5)",
-                "2003-03-03", 20.3, 0.23,
-                8.12,0.30, true))
+    fun getAsteroid(filter: AsteroidApiFilter){
+        viewModelScope.launch {
+            _status.value = AsteroidApiStatus.LOADING
+            try {
+                val result : String
+                if(filter == AsteroidApiFilter.SHOW_TODAY_ASTEROIDS){
+                    result = AsteroidApi.retrofitService.getAsteroids(getTodayFormattedDate(), getTodayFormattedDate()).await()
+                } else {
+                    result = AsteroidApi.retrofitService.getAsteroids().await()
+                }
+                _asteroids.value = parseAsteroidsJsonResult(JSONObject(result))
+                _status.value = AsteroidApiStatus.DONE
+            } catch (e: Exception){
+                _status.value = AsteroidApiStatus.ERROR
+                _asteroids.value = ArrayList()
+            }
+        }
+
     }
+
+    fun updateFilter(filter: AsteroidApiFilter) {
+        getAsteroid(filter)
+    }
+
 }
