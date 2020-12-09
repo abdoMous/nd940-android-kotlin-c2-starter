@@ -1,22 +1,15 @@
 package com.udacity.asteroidradar.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.app.Application
+import androidx.lifecycle.*
 import com.udacity.asteroidradar.Asteroid
-import com.udacity.asteroidradar.api.AsteroidApi
-import com.udacity.asteroidradar.api.AsteroidApiFilter
-import com.udacity.asteroidradar.api.getTodayFormattedDate
-import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
+import com.udacity.asteroidradar.database.getDatabase
+import com.udacity.asteroidradar.repository.AsteroidRepository
 import kotlinx.coroutines.launch
-import org.json.JSONObject
-import retrofit2.await
-import java.lang.Exception
 
-enum class AsteroidApiStatus { LOADING, ERROR, DONE }
+enum class AsteroidApiStatus { LOADING, DONE }
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _navigateToDetail = MutableLiveData<Asteroid>()
     val navigateToDetail : LiveData<Asteroid>
@@ -27,6 +20,18 @@ class MainViewModel : ViewModel() {
     val status : LiveData<AsteroidApiStatus>
         get() = _status
 
+    private val database = getDatabase(application)
+    private val asteroidRepository = AsteroidRepository(database)
+
+    init {
+        viewModelScope.launch {
+            _status.value = AsteroidApiStatus.LOADING
+            asteroidRepository.refreshAsteroid()
+        }
+    }
+
+    val asteroids = asteroidRepository.astroids
+
     fun onAsteroidClicked(asteroid: Asteroid) {
         _navigateToDetail.value = asteroid
     }
@@ -35,32 +40,17 @@ class MainViewModel : ViewModel() {
         _navigateToDetail.value = null
     }
 
-    private val _asteroids = MutableLiveData<List<Asteroid>>()
-    val asteroids: LiveData<List<Asteroid>>
-        get() = _asteroids
+//    fun updateFilter(filter: AsteroidApiFilter) {
+//        getAsteroid(filter)
+//    }
 
-    fun getAsteroid(filter: AsteroidApiFilter){
-        viewModelScope.launch {
-            _status.value = AsteroidApiStatus.LOADING
-            try {
-                val result : String
-                if(filter == AsteroidApiFilter.SHOW_TODAY_ASTEROIDS){
-                    result = AsteroidApi.retrofitService.getAsteroids(getTodayFormattedDate(), getTodayFormattedDate()).await()
-                } else {
-                    result = AsteroidApi.retrofitService.getAsteroids().await()
-                }
-                _asteroids.value = parseAsteroidsJsonResult(JSONObject(result))
-                _status.value = AsteroidApiStatus.DONE
-            } catch (e: Exception){
-                _status.value = AsteroidApiStatus.ERROR
-                _asteroids.value = ArrayList()
+    class Factory(private val application: Application): ViewModelProvider.Factory {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return MainViewModel(application) as T
             }
+            throw IllegalArgumentException("Unable to construct viewmodel")
         }
-
     }
-
-    fun updateFilter(filter: AsteroidApiFilter) {
-        getAsteroid(filter)
-    }
-
 }

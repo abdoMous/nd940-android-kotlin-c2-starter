@@ -13,7 +13,7 @@ import com.udacity.asteroidradar.databinding.FragmentMainBinding
 class MainFragment : Fragment() {
 
     private val viewModel: MainViewModel by lazy {
-        ViewModelProvider(this).get(MainViewModel::class.java)
+        ViewModelProvider(this,MainViewModel.Factory(requireActivity().application)).get(MainViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -42,7 +42,7 @@ class MainFragment : Fragment() {
                 viewModel.onDetailNavigated()
             }
         })
-        viewModel.getAsteroid(AsteroidApiFilter.SHOW_WEEK_ASTEROIDS)
+//        viewModel.getAsteroid(AsteroidApiFilter.SHOW_WEEK_ASTEROIDS)
 
         return binding.root
     }
@@ -53,13 +53,13 @@ class MainFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        viewModel.updateFilter(
-                when(item.itemId){
-                    R.id.show_week_menu -> AsteroidApiFilter.SHOW_WEEK_ASTEROIDS
-                    R.id.show_today_menu -> AsteroidApiFilter.SHOW_TODAY_ASTEROIDS
-                    else -> AsteroidApiFilter.SHOW_SAVED_ASTEROIDS
-                }
-        )
+//        viewModel.updateFilter(
+//                when(item.itemId){
+//                    R.id.show_week_menu -> AsteroidApiFilter.SHOW_WEEK_ASTEROIDS
+//                    R.id.show_today_menu -> AsteroidApiFilter.SHOW_TODAY_ASTEROIDS
+//                    else -> AsteroidApiFilter.SHOW_SAVED_ASTEROIDS
+//                }
+//        )
         return true
     }
 }

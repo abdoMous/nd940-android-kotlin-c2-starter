@@ -50,9 +50,6 @@ fun bindStatus(progressbar: ProgressBar, status: AsteroidApiStatus?) {
         AsteroidApiStatus.LOADING -> {
             progressbar.visibility = View.VISIBLE
         }
-        AsteroidApiStatus.ERROR -> {
-            progressbar.visibility = View.GONE
-        }
         AsteroidApiStatus.DONE -> {
             progressbar.visibility = View.GONE
         }
