@@ -15,22 +15,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val navigateToDetail : LiveData<Asteroid>
         get() = _navigateToDetail
 
-
-    private val _status = MutableLiveData<AsteroidApiStatus>()
-    val status : LiveData<AsteroidApiStatus>
-        get() = _status
-
     private val database = getDatabase(application)
     private val asteroidRepository = AsteroidRepository(database)
 
     init {
         viewModelScope.launch {
-            _status.value = AsteroidApiStatus.LOADING
             asteroidRepository.refreshAsteroid()
         }
     }
 
-    val asteroids = asteroidRepository.astroids
+    val asteroids = asteroidRepository.asteroids
+    val status = asteroidRepository.status
 
     fun onAsteroidClicked(asteroid: Asteroid) {
         _navigateToDetail.value = asteroid
