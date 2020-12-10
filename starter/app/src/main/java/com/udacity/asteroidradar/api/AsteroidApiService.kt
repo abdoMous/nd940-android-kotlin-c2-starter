@@ -20,9 +20,9 @@ private val retrofit = Retrofit.Builder()
 
 interface AsteroidApiService {
     @GET("neo/rest/v1/feed?api_key=g42Sxb6P8Q51UWdSVY0xPK9TDGJX0PkGTSbfG60J")
-fun getAsteroids(@Query("start_date") startDate: String = "",
-                 @Query("end_date") endDate: String = ""):
-            Call<String>
+    fun getAsteroids(@Query("start_date") startDate: String = "",
+                     @Query("end_date") endDate: String = ""):
+                Call<String>
 }
 
 object AsteroidApi {

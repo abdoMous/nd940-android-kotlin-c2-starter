@@ -4,7 +4,9 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
+import com.squareup.picasso.Picasso
 import com.udacity.asteroidradar.main.AsteroidApiStatus
 import com.udacity.asteroidradar.main.MainViewModel
 
@@ -53,5 +55,12 @@ fun bindStatus(progressbar: ProgressBar, status: AsteroidApiStatus?) {
         AsteroidApiStatus.DONE -> {
             progressbar.visibility = View.GONE
         }
+    }
+}
+
+@BindingAdapter("url")
+fun bindPictureOfDay(imageView: ImageView, url:String?){
+    url?.let {
+        Picasso.get().load(url).into(imageView);
     }
 }
