@@ -7,21 +7,20 @@ import com.udacity.asteroidradar.database.getDatabase
 import com.udacity.asteroidradar.repository.AsteroidRepository
 import retrofit2.HttpException
 
-class RefreshDataWorker(appContext: Context, params: WorkerParameters):
-        CoroutineWorker(appContext, params) {
+class DeleteAsteroidsFromPreviousDayWorker(appContext: Context, params: WorkerParameters):
+    CoroutineWorker(appContext, params){
     override suspend fun doWork(): Result {
         val database = getDatabase(applicationContext)
         val repository = AsteroidRepository(database)
         return try {
-            repository.refreshAsteroid()
+            repository.deleteAsteroidsFromPreviousDay()
             Result.success()
-        }catch (e: HttpException){
-            Result.retry()
+        } catch (e: HttpException){
+                Result.retry()
         }
     }
 
     companion object {
-        const val WORK_NAME = "RefreshDataWorker"
+        const val WORK_NAME = "DeleteAsteroidsFromPreviousDayWorker"
     }
-
 }

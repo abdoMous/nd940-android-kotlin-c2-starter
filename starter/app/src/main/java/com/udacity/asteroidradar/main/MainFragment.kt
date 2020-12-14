@@ -17,8 +17,9 @@ class MainFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         val binding = FragmentMainBinding.inflate(inflater)
+
         binding.lifecycleOwner = this
 
         binding.viewModel = viewModel
@@ -31,9 +32,7 @@ class MainFragment : Fragment() {
         binding.asteroidRecycler.adapter = adapter
 
         viewModel.asteroids.observe(viewLifecycleOwner, Observer {
-            it?.let{
-                adapter.submitList(it)
-            }
+            it?.let(adapter::submitList)
         })
 
         viewModel.navigateToDetail.observe(viewLifecycleOwner, Observer { asteroid ->
@@ -42,7 +41,6 @@ class MainFragment : Fragment() {
                 viewModel.onDetailNavigated()
             }
         })
-//        viewModel.getAsteroid(AsteroidApiFilter.SHOW_WEEK_ASTEROIDS)
 
         return binding.root
     }
@@ -53,13 +51,13 @@ class MainFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        viewModel.updateFilter(
-//                when(item.itemId){
-//                    R.id.show_week_menu -> AsteroidApiFilter.SHOW_WEEK_ASTEROIDS
-//                    R.id.show_today_menu -> AsteroidApiFilter.SHOW_TODAY_ASTEROIDS
-//                    else -> AsteroidApiFilter.SHOW_SAVED_ASTEROIDS
-//                }
-//        )
+        viewModel.updateFilter(
+                when(item.itemId){
+                    R.id.show_week_menu -> AsteroidApiFilter.SHOW_WEEK_ASTEROIDS
+                    R.id.show_today_menu -> AsteroidApiFilter.SHOW_TODAY_ASTEROIDS
+                    else -> AsteroidApiFilter.SHOW_SAVED_ASTEROIDS
+                }
+        )
         return true
     }
 }

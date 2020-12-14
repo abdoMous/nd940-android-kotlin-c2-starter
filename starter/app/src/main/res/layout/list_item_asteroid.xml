@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable
             name="asteroid"
@@ -8,9 +10,7 @@
             name="clickListener"
             type="com.udacity.asteroidradar.main.AsteroidListener" />
     </data>
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#000000"
@@ -23,6 +23,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:text="@{asteroid.codename}"
+            tools:text="58347 (2001 KB67)"
             android:textColor="#ffffff"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -36,6 +37,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp"
             android:text="@{asteroid.closeApproachDate}"
+            tools:text="2020-02-08"
             android:textColor="#ffffff"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/code_name_text"
@@ -49,6 +51,9 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:statusIcon="@{asteroid.potentiallyHazardous}"/>
+            android:src="@drawable/ic_status_normal"
+            android:autoMirrored="false"
+            app:statusIcon="@{asteroid.potentiallyHazardous}"
+            app:asteroidContentDescription="@{asteroid.potentiallyHazardous}" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

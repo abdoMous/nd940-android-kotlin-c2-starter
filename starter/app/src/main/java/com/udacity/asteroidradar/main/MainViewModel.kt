@@ -1,9 +1,11 @@
 package com.udacity.asteroidradar.main
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.*
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.PictureOfDay
+import com.udacity.asteroidradar.api.AsteroidApiFilter
 import com.udacity.asteroidradar.api.PictureOfDayApi
 import com.udacity.asteroidradar.database.getDatabase
 import com.udacity.asteroidradar.repository.AsteroidRepository
@@ -23,23 +25,42 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val pictureOfDay: LiveData<PictureOfDay>
         get() = _pictureOfDay
 
-
     private val database = getDatabase(application)
     private val asteroidRepository = AsteroidRepository(database)
 
+    val status = asteroidRepository.status
+
     private val pictureOfDayApi = PictureOfDayApi.retrofitService
 
-    init {
-        viewModelScope.launch {
-            asteroidRepository.refreshAsteroid()
+    private val asteroidFilter = MutableLiveData(AsteroidApiFilter.SHOW_WEEK_ASTEROIDS)
 
-            val result = pictureOfDayApi.getPictureOfDay().await()
-            _pictureOfDay.value = result
+    val asteroids = Transformations.switchMap(asteroidFilter){
+        when(it!!){
+            AsteroidApiFilter.SHOW_TODAY_ASTEROIDS -> asteroidRepository.todayAsteroids
+            AsteroidApiFilter.SHOW_WEEK_ASTEROIDS -> asteroidRepository.weeklyAsteroids
+            AsteroidApiFilter.SHOW_SAVED_ASTEROIDS -> asteroidRepository.allSavedAsteroids
         }
     }
 
-    val asteroids = asteroidRepository.asteroids
-    val status = asteroidRepository.status
+    init {
+        viewModelScope.launch {
+            try{
+                asteroidRepository.refreshAsteroid()
+                setupPictureOfDay()
+
+            } catch (e: Exception){
+                Log.e("MainViewModel", e.message!!)
+                status.value = AsteroidApiStatus.DONE
+            }
+        }
+    }
+
+    private suspend fun setupPictureOfDay() {
+        val result = pictureOfDayApi.getPictureOfDay().await()
+        if(result.mediaType == "image") {
+            _pictureOfDay.value = result
+        }
+    }
 
     fun onAsteroidClicked(asteroid: Asteroid) {
         _navigateToDetail.value = asteroid
@@ -49,9 +70,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _navigateToDetail.value = null
     }
 
-//    fun updateFilter(filter: AsteroidApiFilter) {
-//        getAsteroid(filter)
-//    }
+    fun updateFilter(filter: AsteroidApiFilter) {
+        asteroidFilter.value = filter
+    }
 
     class Factory(private val application: Application): ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
