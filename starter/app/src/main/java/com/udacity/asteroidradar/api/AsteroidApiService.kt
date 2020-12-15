@@ -1,5 +1,6 @@
 package com.udacity.asteroidradar.api
 
+import com.udacity.asteroidradar.BuildConfig
 import com.udacity.asteroidradar.Constants
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -18,8 +19,8 @@ private val retrofit = Retrofit.Builder()
         .build()
 
 interface AsteroidApiService {
-    @GET("neo/rest/v1/feed?api_key=g42Sxb6P8Q51UWdSVY0xPK9TDGJX0PkGTSbfG60J")
-    fun getAsteroids():
+    @GET("neo/rest/v1/feed")
+    fun getAsteroids(@Query("api_key") apiKey: String = BuildConfig.NASA_API_KEY):
                 Call<String>
 }
 
